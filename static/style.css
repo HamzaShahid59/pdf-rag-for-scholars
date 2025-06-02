@@ -1,0 +1,46 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    padding: 40px;
+    color: #333;
+}
+
+h2 {
+    color: #2c3e50;
+}
+
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+input[type="text"],
+input[type="file"] {
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+#answer, #upload-status {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #2c3e50;
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ask a Question</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h2>Ask a Question</h2>
+    <form id="ask-form">
+        <input type="text" name="query" placeholder="Enter your question" required>
+        <button type="submit">Ask</button>
+    </form>
+    <p id="answer"></p>
+
+    <script>
+        document.getElementById("ask-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const query = e.target.query.value;
+            const answerEl = document.getElementById("answer");
+            answerEl.innerText = "Thinking...";
+
+            const response = await fetch("/ask/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query, chat_history: [] })
+            });
+
+            const data = await response.json();
+            answerEl.innerText = "Answer: " + data.answer;
+        });
+    </script>
+</body>
+</html>

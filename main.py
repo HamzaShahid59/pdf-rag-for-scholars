@@ -1,90 +1,82 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
-from typing import List
-from dotenv import load_dotenv
+import streamlit as st
 from services.rag_chain import create_rag_chain
 from services.add_data import create_embeddings
 from services.retriever import PineconeRetrieverWithThreshold
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
 import os
-from fastapi.staticfiles import StaticFiles
+import tempfile
 
-
-templates = Jinja2Templates(directory="templates")
-
+# Load environment variables
 load_dotenv()
 
-app = FastAPI()
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+# Set up retriever and RAG chain
 retriever = PineconeRetrieverWithThreshold()
 rag_chain = create_rag_chain(retriever)
 
-class QueryRequest(BaseModel):
-    query: str
-    chat_history: List[str] = []
+# Sidebar for navigation
+st.sidebar.title("Navigation")
+app_mode = st.sidebar.radio("Choose Page", ["Ask a Question" ,"Upload PDF" ])
 
 
-@app.post("/upload-pdf/")
-async def upload_pdf(file: UploadFile = File(...)):
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
+# ------------------ Ask Question Page ------------------
+if app_mode == "Ask a Question":
+    st.title("💬 Ask Questions")
 
-    file_path = os.path.join(".", file.filename)
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
 
-    # Save the uploaded file
-    with open(file_path, "wb") as f:
-        content = await file.read()
-        f.write(content)
+    query = st.text_input("Enter your question", key="user_input")
 
-    try:
-        # Load, split, and embed
-        loader = PyPDFLoader(file_path)
-        pages = loader.load()
+    if query:  # Triggers automatically when user presses Enter
+        with st.spinner("Thinking..."):
+            response = rag_chain.invoke({
+                "input": query,
+                "chat_history": st.session_state.chat_history
+            })
 
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        documents = text_splitter.split_documents(pages)
+        st.session_state.chat_history.append(f"User: {query}")
+        st.session_state.chat_history.append(f"Bot: {response['answer']}")
 
-        create_embeddings(documents)
+        st.subheader("Answer:")
+        st.write(response["answer"])
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing PDF: {str(e)}")
-
-    finally:
-        # Clean up: delete the PDF after processing
-        if os.path.exists(file_path):
-            os.remove(file_path)
-
-    return {"status": "success", "message": f"{file.filename} processed and deleted after embedding."}
-
-@app.post("/ask/")
-async def ask_question(request: QueryRequest):
-    response = rag_chain.invoke({
-        "input": request.query,
-        "chat_history": request.chat_history
-    })
-    return {"answer": response["answer"]}
+    if st.session_state.chat_history:
+        st.markdown("---")
+        st.subheader("Chat History")
+        for entry in st.session_state.chat_history:
+            st.markdown(f"- {entry}")
 
 
-@app.get("/ui/upload", response_class=HTMLResponse)
-async def upload_ui(request: Request):
-    return templates.TemplateResponse("upload.html", {"request": request})
+# ------------------ Upload PDF Page ------------------
+elif app_mode == "Upload PDF":
+    st.title("📄 Upload PDF for Embedding")
 
+    uploaded_file = st.file_uploader("Choose a PDF file", type=["pdf"])
 
-@app.get("/ui/ask", response_class=HTMLResponse)
-async def ask_ui(request: Request):
-    return templates.TemplateResponse("ask.html", {"request": request})
+    if uploaded_file is not None:
+        if not uploaded_file.name.endswith(".pdf"):
+            st.error("Only PDF files are allowed.")
+        else:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+                tmp_file.write(uploaded_file.read())
+                tmp_file_path = tmp_file.name
+
+            st.info("Processing PDF...")
+
+            try:
+                loader = PyPDFLoader(tmp_file_path)
+                pages = loader.load()
+
+                text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+                documents = text_splitter.split_documents(pages)
+
+                create_embeddings(documents)
+
+                st.success(f"{uploaded_file.name} processed and embedded successfully.")
+            except Exception as e:
+                st.error(f"Error processing PDF: {str(e)}")
+            finally:
+                os.remove(tmp_file_path)
+

@@ -6,3 +6,7 @@ extras
 *.rar
 test.py
 *.pdf
+*.exe
+/templates
+/test
+/pdfs

@@ -9,7 +9,7 @@ pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 INDEX_NAME = "pdf-data"
 # SIMILARITY_THRESHOLD = 0.40
 
-def search_pinecone(query: str, top_k=3):
+def search_pinecone(query: str, top_k=5):
 
     # Get embedding for query
     response = openai.embeddings.create(

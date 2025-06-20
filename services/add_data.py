@@ -4,6 +4,10 @@ from pinecone import Pinecone, ServerlessSpec
 from langchain_openai import OpenAIEmbeddings
 import logging
 import openai
+from openai import OpenAI
+from openai import OpenAIError
+import time
+client = OpenAI()
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -35,54 +39,60 @@ def check_index_data():
     return stats['total_vector_count'] > 0
 
 
+
+def get_embedding_with_retries(text, retries=3, delay=5):
+    for attempt in range(1, retries + 1):
+        try:
+            response = client.embeddings.create(
+                model="text-embedding-3-small",
+                input=text,
+                timeout=60
+            )
+            return response.data[0].embedding
+        except OpenAIError as e:
+            logger.warning(f"Attempt {attempt} failed: {e}")
+            if attempt == retries:
+                raise
+            time.sleep(delay * attempt)
+
+
 def create_embeddings(documents):
     try:
         initialize_pinecone_index()
-        # if check_index_data():
-        #     logger.info("Index already has data. Skipping embedding creation.")
-        #     return
-        
         vectors = []
         count = 0
         index = pc.Index(INDEX_NAME)
 
         for doc in documents:
+            print(f"[Page {doc.metadata.get('page', '?')}] from {doc.metadata.get('filename', '')}")
+
             details = doc.page_content.strip()
             if not details:
                 continue
 
-            unique_id = str(hash(details))  # Generate a unique ID
+            unique_id = str(hash(details))  
+            embedding = get_embedding_with_retries(details)
 
-            # Generate embedding
-            response = openai.embeddings.create(
-                model="text-embedding-3-small",
-                input=details
-            )
-            embedding = response.data[0].embedding
-
-            # Add to batch
             vectors.append((
                 unique_id,
                 embedding,
                 {
                     "text": details,
-                    "source": doc.metadata.get("source", ""),
+                    "source": doc.metadata.get("source", doc.metadata.get("filename", "")),
                     "page": doc.metadata.get("page", ""),
                 }
             ))
             count += 1
 
-            # Batch upsert every 100 vectors
             if len(vectors) >= 100:
                 index.upsert(vectors)
                 vectors = []
 
-        # Final batch
         if vectors:
             index.upsert(vectors)
 
-        print(f"Successfully stored {count} embeddings in Pinecone.")
+        print(f"✅ Successfully stored {count} embeddings in Pinecone.")
 
-        
     except Exception as e:
         logger.error(f"Embedding creation failed: {e}")
+

@@ -29,9 +29,9 @@ if app_mode == "Ask a Question":
 
     query = st.text_input("Enter your question", key="user_input")
 
-    if query:  # Triggers automatically when user presses Enter
+    if query:
         with st.spinner("Thinking..."):
-            response = rag_chain.invoke({
+            response = rag_chain({
                 "input": query,
                 "chat_history": st.session_state.chat_history
             })
@@ -41,6 +41,18 @@ if app_mode == "Ask a Question":
 
         st.subheader("Answer:")
         st.write(response["answer"])
+
+        # Show references
+        if response.get("sources"):
+            refs = set()
+            for doc in response["sources"]:
+                filename = doc.metadata.get("filename") or doc.metadata.get("source", "unknown")
+                page = doc.metadata.get("page", "?")
+                refs.add(f"{filename} (page {page})")
+
+            st.markdown("#### 📚 Relevant Sources Checked:")
+            for ref in sorted(refs):
+                st.markdown(f"- {ref}")
 
     if st.session_state.chat_history:
         st.markdown("---")
@@ -69,7 +81,7 @@ elif app_mode == "Upload PDF":
                 loader = PyPDFLoader(tmp_file_path)
                 pages = loader.load()
 
-                text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+                text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=300)
                 documents = text_splitter.split_documents(pages)
 
                 create_embeddings(documents)

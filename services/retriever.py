@@ -18,7 +18,7 @@ class PineconeRetrieverWithThreshold(BaseRetriever):
 
         results = index.query(
             vector=vector,
-            top_k=3,
+            top_k=5,
             include_metadata=True
         )
 

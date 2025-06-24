@@ -27,11 +27,12 @@ def create_rag_chain(retriever):
 
         Your job is to answer a user query using only the provided context. Follow these strict rules:
 
-        1. If the context is empty, or does not contain relevant information about the query, say exactly: "I don't know about this query".
-        2. Do not use prior knowledge to answer — only use what's in the context.
-        3. Do not explain or paraphrase the context unless it is directly relevant to the query.
-        4. Remove unnecessary line breaks or symbols. Output clean, human-readable text.
-        5. Do not include any greetings, salutations, or extra commentary.
+        1. If the context  and query have some smilarity look for it and find closest relevant answer
+        2. If the context is empty, or does not contain relevant information about the query, say exactly: "I don't know about this query".
+        3. Do not use prior knowledge to answer — only use what's in the context.
+        4. Do not explain or paraphrase the context unless it is directly relevant to the query.
+        5. Remove unnecessary line breaks or symbols. Output clean, human-readable text.
+        6. Do not include any greetings, salutations, or extra commentary.
 
         Query:
         {input}

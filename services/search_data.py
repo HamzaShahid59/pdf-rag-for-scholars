@@ -6,6 +6,8 @@ from pinecone import Pinecone, ServerlessSpec
 load_dotenv()
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+# INDEX_NAME = "test-pdf-data-1"
+
 INDEX_NAME = "pdf-data"
 # SIMILARITY_THRESHOLD = 0.40
 

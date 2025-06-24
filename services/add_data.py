@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 INDEX_NAME = "pdf-data"
+# INDEX_NAME = "test-pdf-data-1"
 SIMILARITY_THRESHOLD = 0.40
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
@@ -59,9 +60,8 @@ def get_embedding_with_retries(text, retries=3, delay=5):
 def create_embeddings(documents):
     try:
         initialize_pinecone_index()
-        vectors = []
-        count = 0
         index = pc.Index(INDEX_NAME)
+        count = 0
 
         for doc in documents:
             print(f"[Page {doc.metadata.get('page', '?')}] from {doc.metadata.get('filename', '')}")
@@ -73,7 +73,7 @@ def create_embeddings(documents):
             unique_id = str(hash(details))  
             embedding = get_embedding_with_retries(details)
 
-            vectors.append((
+            vector = (
                 unique_id,
                 embedding,
                 {
@@ -81,18 +81,12 @@ def create_embeddings(documents):
                     "source": doc.metadata.get("source", doc.metadata.get("filename", "")),
                     "page": doc.metadata.get("page", ""),
                 }
-            ))
+            )
+
+            index.upsert([vector])  # Upsert a single embedding immediately
             count += 1
-
-            if len(vectors) >= 100:
-                index.upsert(vectors)
-                vectors = []
-
-        if vectors:
-            index.upsert(vectors)
 
         print(f"✅ Successfully stored {count} embeddings in Pinecone.")
 
     except Exception as e:
         logger.error(f"Embedding creation failed: {e}")
-

@@ -6,8 +6,9 @@ from typing import List
 import os
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+# INDEX_NAME = "test-pdf-data-1"
 INDEX_NAME = "pdf-data"
-SIMILARITY_THRESHOLD = 0.4
+SIMILARITY_THRESHOLD = 0.1
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
@@ -33,6 +34,7 @@ class PineconeRetrieverWithThreshold(BaseRetriever):
                         "source": metadata.get("source", "")
                     }
                 ))
+        print(f"chunks retrieved are {documents}")
         return documents
 
     async def _aget_relevant_documents(self, query: str) -> List[Document]:

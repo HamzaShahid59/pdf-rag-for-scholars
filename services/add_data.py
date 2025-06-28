@@ -70,7 +70,7 @@ def create_embeddings(documents):
             if not details:
                 continue
 
-            unique_id = str(hash(details))  
+            unique_id = str(hash(details))
             embedding = get_embedding_with_retries(details)
 
             vector = (
@@ -83,10 +83,11 @@ def create_embeddings(documents):
                 }
             )
 
-            index.upsert([vector])  # Upsert a single embedding immediately
+            # ✅ Store in the specified namespace
+            index.upsert([vector], namespace="altas-copco-sf-manuals")
             count += 1
 
-        print(f"✅ Successfully stored {count} embeddings in Pinecone.")
+        print(f"✅ Successfully stored {count} embeddings in Pinecone namespace 'altas-copco-sf-manuals'.")
 
     except Exception as e:
         logger.error(f"Embedding creation failed: {e}")

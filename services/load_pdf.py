@@ -156,12 +156,13 @@ def load_pdf_with_layout_analysis(file_path: str) -> List[Document]:  # Removed 
 def split_docs_with_intro(documents: List[Document], intro_text: str, chunk_size: int, chunk_overlap: int) -> List[Document]:
     """Split documents and add intro text to each chunk"""
     splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    
     split_documents = splitter.split_documents(documents)
     
     # Add intro text to each chunk
     if intro_text:
         for doc in split_documents:
-            doc.page_content = f"Topic: {intro_text}\n\nData : {doc.page_content}"
+            doc.page_content = f"Topic: Atlas Copco SF 4 / SF 8  Scroll Air Compressors (Oil-Free) Series and data is for {intro_text}\n\nData : {doc.page_content}"
     
     return split_documents
 
@@ -184,7 +185,7 @@ def split_docs_with_intro(documents: List[Document], intro_text: str, chunk_size
 
 #     return split_documents
 
-def load_pdf_smart(file_path: str, chunk_size=1500, chunk_overlap=300) -> List[Document]:
+def load_pdf_smart(file_path: str, chunk_size=1400, chunk_overlap=300) -> List[Document]:
     filename = os.path.basename(file_path)
     intro_text = extract_intro_from_first_page(file_path)
     # print("Got Intro Text ") 

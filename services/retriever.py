@@ -38,21 +38,26 @@ def get_embedding_with_retries(text, retries=3, delay=5):
             time.sleep(delay * attempt)
 
 class PineconeRetrieverWithThreshold(BaseRetriever):
-    def __init__(self):
+    def __init__(self, namespace: str = ""):
         super().__init__()
-    
+        self._namespace = namespace  # Use underscore to avoid LangChain validation issues
+
+    @property
+    def namespace(self):
+        return self._namespace
+
     def _get_relevant_documents(self, query: str) -> List[Document]:
         index = pc.Index(INDEX_NAME)
-        
-        # Use the same embedding function for consistency
         vector = get_embedding_with_retries(query)
-        
+        print("Name space using is ")
+        print(self.namespace)
         results = index.query(
             vector=vector,
             top_k=5,
-            include_metadata=True
+            include_metadata=True,
+            namespace=self.namespace  # Now safe
         )
-        
+
         documents = []
         for match in results.matches:
             if match.score >= SIMILARITY_THRESHOLD:
@@ -62,9 +67,11 @@ class PineconeRetrieverWithThreshold(BaseRetriever):
                     metadata={
                         "page": metadata.get("page", ""),
                         "source": metadata.get("source", ""),
-                        "score": match.score  # Optional: include similarity score
+                        "filename": metadata.get("filename", ""),
+                        "score": match.score
                     }
                 ))
-        
-        # print(f"chunks retrieved are \n {documents}")
         return documents
+
+
+

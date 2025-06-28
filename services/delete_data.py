@@ -9,38 +9,29 @@ logger = logging.getLogger(__name__)
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 INDEX_NAME = "pdf-data"
+NAMESPACE = "altas-copco-xas-manuals"  # 👈 Define your target namespace
 
 # List of sources you want to delete
 TARGET_SOURCES = [
-    "atlas-copco-elektronikon-1-manual.pdf"
+    "atlas-copco-xas-125-manual.pdf"
 ]
-# TARGET_SOURCES = [
-#     "atlas-copco-ga-200-manual.pdf",
-#     "atlas-copco-ga-250-manual-pdf.pdf",
-#     "atlas-copco-ga-90.pdf",
-#     "atlas-copco-ga7-service-manual.pdf",
-#     "atlas-copco-ga-22-ff-manual.pdf",
-#     "atlas-copco-ga5-manual.pdf",
-#     "atlas-copco-xas-65-manual.pdf",
-#     "atlas-copco-ga22-manual-download.pdf"
-# ]
 
-def delete_vectors_by_sources(sources):
+def delete_vectors_by_sources(sources, namespace):
     try:
         index = pc.Index(INDEX_NAME)
         all_ids_to_delete = []
 
         for source in sources:
-            logger.info(f"Searching for vectors with source: '{source}'")
+            logger.info(f"Searching for vectors with source: '{source}' in namespace: '{namespace}'")
             ids_to_delete = []
-            cursor = None
 
             while True:
                 response = index.query(
                     vector=[0.0] * 1536,  # Dummy vector
                     filter={"source": {"$eq": source}},
                     top_k=100,
-                    include_metadata=True
+                    include_metadata=True,
+                    namespace=namespace  # 👈 Search within the namespace
                 )
                 matches = response.get("matches", [])
                 ids_to_delete.extend([match["id"] for match in matches])
@@ -59,11 +50,11 @@ def delete_vectors_by_sources(sources):
             return
 
         logger.info(f"Deleting total {len(all_ids_to_delete)} vectors from Pinecone...")
-        index.delete(ids=all_ids_to_delete)
+        index.delete(ids=all_ids_to_delete, namespace=namespace)  # 👈 Delete from the namespace
         logger.info("✅ Deletion completed successfully.")
 
     except Exception as e:
         logger.error(f"Error during deletion: {e}")
 
 if __name__ == "__main__":
-    delete_vectors_by_sources(TARGET_SOURCES)
+    delete_vectors_by_sources(TARGET_SOURCES, NAMESPACE)

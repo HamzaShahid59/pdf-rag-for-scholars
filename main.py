@@ -3,6 +3,7 @@ import streamlit as st
 from services.rag_chain import create_rag_chain
 from services.retriever import PineconeRetrieverWithThreshold, pc, INDEX_NAME
 from dotenv import load_dotenv
+from services.translate import detect_and_translate
 
 # Load environment variables
 load_dotenv()
@@ -59,7 +60,7 @@ tab1, tab2 = st.tabs(["💬 Ask Question", "📁 View PDFs"])
 # Tab 1: Ask Question
 # ---------------------------
 with tab1:
-    st.subheader("Select a Namespace to Ask Questions")
+    st.subheader("Select a Category to Ask Questions")
 
     cols = st.columns(len(namespaces))
     for i, ns in enumerate(namespaces):
@@ -90,8 +91,11 @@ with tab1:
 
         if query:
             with st.spinner("Thinking..."):
+                translated_input = detect_and_translate(query)
                 response = rag_chain({
                     "input": query,
+                    "translated_query": translated_input["translated_query"],
+                    "language": translated_input["language"],
                     "chat_history": st.session_state.chat_history
                 })
 
@@ -117,6 +121,7 @@ with tab1:
             st.subheader("🕘 Chat History")
             for entry in st.session_state.chat_history:
                 st.markdown(f"- {entry}")
+
     else:
         st.info("Please select a namespace to begin.")
 
@@ -124,7 +129,7 @@ with tab1:
 # Tab 2: View PDFs
 # ---------------------------
 with tab2:
-    st.subheader("View PDFs in a Namespace")
+    st.subheader("View PDFs in a Category")
 
     cols = st.columns(len(namespaces))
     for i, ns in enumerate(namespaces):

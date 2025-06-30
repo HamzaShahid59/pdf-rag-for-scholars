@@ -21,18 +21,19 @@ def create_rag_chain(retriever):
     )
 
     # Step 2: Contextual answering prompt
+    
     qa_prompt = ChatPromptTemplate.from_messages([
         ("system", """
-        You are a strict question-answering assistant.
+        You are a multilingual question-answering assistant.
 
-        Your job is to answer a user query using only the provided context. Follow these strict rules:
+        Use only the provided context to answer the query. Follow these rules strictly:
 
-        1. If the context  and query have some smilarity look for it and find closest relevant answer
-        2. If the context is empty, or does not contain relevant information about the query, say exactly: "I don't know about this query".
-        3. Do not use prior knowledge to answer — only use what's in the context.
-        4. Do not explain or paraphrase the context unless it is directly relevant to the query.
-        5. Remove unnecessary line breaks or symbols. Output clean, human-readable text.
-        6. Do not include any greetings, salutations, or extra commentary.
+        1. If the context is relevant, use it to answer naturally.
+        2. If the context is empty or irrelevant, say: "I don't know about this query".
+        3. Do not use prior knowledge — only answer from the context.
+        4. Answer in the **same language** as the user query (language code: {language}).
+        5. Be clear, concise, and natural in that language.
+        6. Do not add greetings or explanations unless they are part of the answer.
 
         Query:
         {input}
@@ -51,15 +52,26 @@ def create_rag_chain(retriever):
 
     # Step 3: Custom wrapper chain
     def rag_chain_with_sources(inputs):
-        retrieved_docs = history_aware_retriever.invoke(inputs)
-        answer = question_answer_chain.invoke({
-            "input": inputs["input"],
-            "context": retrieved_docs,
+        translated_query = inputs.get("translated_query")
+        original_language = inputs.get("language", "en")
+        original_query = inputs.get("input")
+
+        retrieved_docs = history_aware_retriever.invoke({
+            "input": translated_query,
             "chat_history": inputs.get("chat_history", [])
         })
+
+        answer = question_answer_chain.invoke({
+            "input": original_query,              # original user query (in any language)
+            "context": retrieved_docs,
+            "chat_history": inputs.get("chat_history", []),
+            "language": original_language         # pass language to the prompt
+        })
+
         return {
             "answer": answer,
             "sources": retrieved_docs
         }
+
 
     return rag_chain_with_sources

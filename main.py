@@ -13,20 +13,36 @@ st.set_page_config(page_title="Smart Assistant | Atlas Copco", layout="wide")
 st.markdown("## 🧠 Smart Assistant for Atlas Copco Documents")
 
 # ---------------------------
-# Fetch and cache namespaces
+# Static Product Categories
 # ---------------------------
-if "namespace_list" not in st.session_state:
-    index = pc.Index(INDEX_NAME)
-    fetched_namespaces = list(index.describe_index_stats().namespaces.keys())
-    st.session_state.namespace_list = [ns for ns in fetched_namespaces if ns.lower() != "__default__"]
+product_categories = [
+    {"label": "Mobile Diesel Generators (QAS Series)", "namespace": "altas-copco-qas-manuals"},
+    {"label": "Refrigerant Air Dryers (FD Series)", "namespace": "altas-copco-fd-manuals"},
+    {"label": "Portable Compressors (XAS Series)", "namespace": "altas-copco-xas-manuals"},
+    {"label": "Oil-Free Rotary Screw Compressors (Z Series)", "namespace": "altas-copco-z-manuals"},
+    {"label": "Scroll Air Compressors (SF Series)", "namespace": "altas-copco-sf-manuals"},
+    {"label": "Oil-Injected Screw Compressors (GA Series)", "namespace": "altas-copco-ga-manuals"},
+    {"label": "Desiccant Air Dryers (CD Series)", "namespace": "altas-copco-cd-manuals"},
+]
 
-namespaces = st.session_state.namespace_list
+
+# ---------------------------
+# (Commented out) Fetch and cache dynamic namespaces
+# ---------------------------
+# if "namespace_list" not in st.session_state:
+#     index = pc.Index(INDEX_NAME)
+#     fetched_namespaces = list(index.describe_index_stats().namespaces.keys())
+#     st.session_state.namespace_list = [ns for ns in fetched_namespaces if ns.lower() != "__default__"]
+
+# namespaces = st.session_state.namespace_list
 
 # ---------------------------
 # State setup
 # ---------------------------
 if "selected_namespace" not in st.session_state:
     st.session_state.selected_namespace = None
+if "selected_label" not in st.session_state:
+    st.session_state.selected_label = None
 if "active_modal" not in st.session_state:
     st.session_state.active_modal = None
 if "chat_history" not in st.session_state:
@@ -60,19 +76,22 @@ tab1, tab2 = st.tabs(["💬 Ask Question", "📁 View PDFs"])
 # Tab 1: Ask Question
 # ---------------------------
 with tab1:
-    st.subheader("Select a Category to Ask Questions")
+    st.subheader("Select a Product Category to Ask Questions")
 
-    cols = st.columns(len(namespaces))
-    for i, ns in enumerate(namespaces):
+    cols = st.columns(len(product_categories))
+    for i, item in enumerate(product_categories):
+        label = item["label"]
+        namespace = item["namespace"]
+        is_selected = (st.session_state.selected_namespace == namespace)
+        border_color = "#4da6ff" if is_selected else "#ccc"
         with cols[i]:
-            is_selected = (st.session_state.selected_namespace == ns)
-            border_color = "#4da6ff" if is_selected else "#ccc"
-            if st.button(f"📦 {ns}", key=f"ask_card_{ns}"):
-                st.session_state.selected_namespace = ns
+            if st.button(f"📦 {label}", key=f"ask_card_{namespace}"):
+                st.session_state.selected_namespace = namespace
+                st.session_state.selected_label = label
 
             st.markdown(f"""
                 <style>
-                div[data-testid="column"] > div:has(button[kind='secondary'][key='ask_card_{ns}']) {{
+                div[data-testid="column"] > div:has(button[kind='secondary'][key='ask_card_{namespace}']) {{
                     border: 2px solid {border_color};
                     border-radius: 10px;
                     padding: 10px;
@@ -82,12 +101,13 @@ with tab1:
             """, unsafe_allow_html=True)
 
     selected_ns = st.session_state.selected_namespace
+    selected_label = st.session_state.selected_label
 
     if selected_ns:
         retriever = PineconeRetrieverWithThreshold(namespace=selected_ns)
         rag_chain = create_rag_chain(retriever)
 
-        query = st.text_input(f"Ask something in `{selected_ns}`:", key="user_input")
+        query = st.text_input(f"Ask something in `{selected_label}`:", key="user_input")
 
         if query:
             with st.spinner("Thinking..."):
@@ -121,27 +141,28 @@ with tab1:
             st.subheader("🕘 Chat History")
             for entry in st.session_state.chat_history:
                 st.markdown(f"- {entry}")
-
     else:
-        st.info("Please select a namespace to begin.")
+        st.info("Please select a product category to begin.")
 
 # ---------------------------
 # Tab 2: View PDFs
 # ---------------------------
 with tab2:
-    st.subheader("View PDFs in a Category")
+    st.subheader("View PDFs in a Product Category")
 
-    cols = st.columns(len(namespaces))
-    for i, ns in enumerate(namespaces):
+    cols = st.columns(len(product_categories))
+    for i, item in enumerate(product_categories):
+        label = item["label"]
+        namespace = item["namespace"]
+        is_selected = (st.session_state.active_modal == namespace)
+        border_color = "#4da6ff" if is_selected else "#ccc"
         with cols[i]:
-            is_selected = (st.session_state.active_modal == ns)
-            border_color = "#4da6ff" if is_selected else "#ccc"
-            if st.button(f"📦 {ns}", key=f"view_card_{ns}"):
-                st.session_state.active_modal = ns
+            if st.button(f"📦 {label}", key=f"view_card_{namespace}"):
+                st.session_state.active_modal = namespace
 
             st.markdown(f"""
                 <style>
-                div[data-testid="column"] > div:has(button[kind='secondary'][key='view_card_{ns}']) {{
+                div[data-testid="column"] > div:has(button[kind='secondary'][key='view_card_{namespace}']) {{
                     border: 2px solid {border_color};
                     border-radius: 10px;
                     padding: 10px;

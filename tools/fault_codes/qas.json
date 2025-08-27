@@ -1,0 +1,115 @@
+[
+  {
+    "FaultCode": "LOP-01",
+    "Description": "Low Oil Pressure",
+    "RootCause": [
+      "Oil leak",
+      "Low oil",
+      "Faulty pump",
+      "Sensor failure"
+    ],
+    "FixingSteps": "Check oil level, refill, inspect pump & sensor",
+    "PartsRequired": [
+      "Engine oil",
+      "Oil filter",
+      "Pressure sensor"
+    ]
+  },
+  {
+    "FaultCode": "HCT-02",
+    "Description": "High Coolant Temperature",
+    "RootCause": [
+      "Low coolant",
+      "Blocked radiator",
+      "Failed water pump",
+      "Fan fault"
+    ],
+    "FixingSteps": "Check coolant, clean radiator, inspect fan & pump",
+    "PartsRequired": [
+      "Coolant",
+      "Thermostat",
+      "Radiator/fan parts"
+    ]
+  },
+  {
+    "FaultCode": "ALT-03",
+    "Description": "Charging Alternator Fault",
+    "RootCause": [
+      "Alternator belt broken",
+      "Faulty alternator",
+      "Wiring fault"
+    ],
+    "FixingSteps": "Inspect/replace belt, test alternator output, check wiring",
+    "PartsRequired": [
+      "Alternator",
+      "V-belt",
+      "Regulator"
+    ]
+  },
+  {
+    "FaultCode": "LFL-04",
+    "Description": "Low Fuel Level",
+    "RootCause": [
+      "Fuel tank empty",
+      "Fuel leak",
+      "Gauge failure"
+    ],
+    "FixingSteps": "Refill tank, check for leaks, test level sensor",
+    "PartsRequired": [
+      "Diesel fuel",
+      "Sensor (if faulty)"
+    ]
+  },
+  {
+    "FaultCode": "LCL-05",
+    "Description": "Low Coolant Level",
+    "RootCause": [
+      "Coolant leak",
+      "Faulty level sensor"
+    ],
+    "FixingSteps": "Inspect hoses/radiator, refill coolant, replace sensor",
+    "PartsRequired": [
+      "Coolant",
+      "Sensor",
+      "Hoses"
+    ]
+  },
+  {
+    "FaultCode": "GOV-06",
+    "Description": "Generator Overvoltage",
+    "RootCause": [
+      "AVR malfunction",
+      "Faulty wiring"
+    ],
+    "FixingSteps": "Check AVR, calibrate or replace",
+    "PartsRequired": [
+      "AVR (Automatic Voltage Regulator)"
+    ]
+  },
+  {
+    "FaultCode": "GUV-07",
+    "Description": "Generator Undervoltage",
+    "RootCause": [
+      "Overload",
+      "AVR issue",
+      "Alternator fault"
+    ],
+    "FixingSteps": "Reduce load, check AVR, inspect alternator windings",
+    "PartsRequired": [
+      "AVR (Automatic Voltage Regulator)",
+      "Alternator repair kit"
+    ]
+  },
+  {
+    "FaultCode": "GOF-08",
+    "Description": "Generator Overfrequency",
+    "RootCause": [
+      "Governor malfunction",
+      "Wrong settings"
+    ],
+    "FixingSteps": "Check governor & speed control, recalibrate",
+    "PartsRequired": [
+      "Governor actuator"
+    ]
+  }
+]

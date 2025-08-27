@@ -1,0 +1,290 @@
+[
+  {
+    "code": "FX-PDP-HI",
+    "name": "High Pressure Dew Point",
+    "models": ["FX 7"],
+    "system": "Process",
+    "severity": "Warning",
+    "description": "Outlet dew point above safe threshold.",
+    "likely_root_causes": [
+      "Inlet/ambient temperature too high",
+      "Unit undersized for flow",
+      "Condenser fouled or fan failure",
+      "Low refrigerant charge"
+    ],
+    "fix_steps": [
+      {"step": 1, "action": "Check ambient/inlet air temperature against limits."},
+      {"step": 2, "action": "Reduce flow to rated capacity."},
+      {"step": 3, "action": "Clean condenser and verify fan operation."},
+      {"step": 4, "action": "Leak test and recharge refrigerant as required."}
+    ],
+    "parts": [
+      {"sku": "FAN-ASSY-FD", "quantity": 1},
+      {"sku": "FILTER-LIQ-REF", "quantity": 1}
+    ]
+  },
+  {
+    "code": "FX-PDP-LO",
+    "name": "Low Pressure Dew Point",
+    "models": ["FX 7"],
+    "system": "Process",
+    "severity": "Info",
+    "description": "Dew point below setpoint, may indicate freeze cycle.",
+    "likely_root_causes": [
+      "Controller threshold exceeded",
+      "Very low load condition"
+    ],
+    "fix_steps": [
+      {"step": 1, "action": "Check PDP probe calibration."},
+      {"step": 2, "action": "Verify load conditions, adjust settings if needed."}
+    ],
+    "parts": []
+  },
+  {
+    "code": "FX-FRZ-L2",
+    "name": "Freeze Protection (L2)",
+    "models": ["FX 7"],
+    "system": "Refrigeration",
+    "severity": "Critical",
+    "description": "Evaporator temperature too low, ice formation risk.",
+    "likely_root_causes": [
+      "Very low airflow/load",
+      "Probe misplacement",
+      "Hot gas bypass malfunction"
+    ],
+    "fix_steps": [
+      {"step": 1, "action": "Check airflow and ensure minimum load."},
+      {"step": 2, "action": "Inspect probe position and connections."},
+      {"step": 3, "action": "Test hot gas bypass valve operation."}
+    ],
+    "parts": [
+      {"sku": "VALVE-HGBV", "quantity": 1},
+      {"sku": "SNS-TEMP-PT1000", "quantity": 1}
+    ]
+  },
+  {
+    "code": "FX-PROBE",
+    "name": "Probe Failure",
+    "models": ["FX 7"],
+    "system": "Controls",
+    "severity": "Warning",
+    "description": "PDP or temperature probe failure.",
+    "likely_root_causes": [
+      "Open/short circuit in sensor wiring",
+      "Probe element failure"
+    ],
+    "fix_steps": [
+      {"step": 1, "action": "Check wiring/connector integrity."},
+      {"step": 2, "action": "Replace defective probe."}
+    ],
+    "parts": [
+      {"sku": "SNS-TEMP-PT1000", "quantity": 1}
+    ]
+  },
+  {
+    "code": "FX-EE",
+    "name": "EEPROM Error",
+    "models": ["FX 7"],
+    "system": "Controller",
+    "severity": "Warning",
+    "description": "Controller non-volatile memory fault.",
+    "likely_root_causes": [
+      "Internal controller error",
+      "Corrupted EEPROM"
+    ],
+    "fix_steps": [
+      {"step": 1, "action": "Power cycle unit and reset error."},
+      {"step": 2, "action": "Replace controller if fault persists."}
+    ],
+    "parts": [
+      {"sku": "CTRL-ELEK", "quantity": 1}
+    ]
+  },
+  {
+    "code": "FX-SE",
+    "name": "Service Warning",
+    "models": ["FX 7"],
+    "system": "Maintenance",
+    "severity": "Info",
+    "description": "Scheduled maintenance interval reached.",
+    "likely_root_causes": ["Service interval expired"],
+    "fix_steps": [
+      {"step": 1, "action": "Perform scheduled maintenance (filters, drains, inspection)."},
+      {"step": 2, "action": "Reset service timer on controller."}
+    ],
+    "parts": []
+  },
+  {
+    "code": "FX-FAN",
+    "name": "Fan Failure",
+    "models": ["FX 7"],
+    "system": "Cooling",
+    "severity": "Warning",
+    "description": "Fan not running or not commanded.",
+    "likely_root_causes": [
+      "Fan motor failure",
+      "Fan control switch defective",
+      "Mechanical blockage"
+    ],
+    "fix_steps": [
+      {"step": 1, "action": "Check motor continuity and replace if failed."},
+      {"step": 2, "action": "Test fan control switch/relay."},
+      {"step": 3, "action": "Clear obstruction and retest."}
+    ],
+    "parts": [
+      {"sku": "FAN-ASSY-FD", "quantity": 1},
+      {"sku": "RELAY-HP-LP", "quantity": 1}
+    ]
+  },
+  {
+    "code": "FX-HP-SW",
+    "name": "High Pressure Switch Trip",
+    "models": ["FX 7"],
+    "system": "Refrigeration",
+    "severity": "Critical",
+    "description": "Condenser pressure exceeded HP switch limit.",
+    "likely_root_causes": [
+      "Dirty or blocked condenser",
+      "Fan not operating",
+      "HP switch failure"
+    ],
+    "fix_steps": [
+      {"step": 1, "action": "Clean condenser fins."},
+      {"step": 2, "action": "Check fan operation and replace if needed."},
+      {"step": 3, "action": "Test/replace HP switch."}
+    ],
+    "parts": [
+      {"sku": "RELAY-HP-LP", "quantity": 1},
+      {"sku": "FAN-ASSY-FD", "quantity": 1}
+    ]
+  },
+  {
+    "code": "FX-COMP-TH",
+    "name": "Compressor Discharge Temp High",
+    "models": ["FX 7"],
+    "system": "Refrigeration",
+    "severity": "Warning",
+    "description": "High compressor discharge temperature detected.",
+    "likely_root_causes": [
+      "Dirty condenser",
+      "Low refrigerant charge",
+      "Poor airflow"
+    ],
+    "fix_steps": [
+      {"step": 1, "action": "Clean condenser thoroughly."},
+      {"step": 2, "action": "Leak check and recharge refrigerant."},
+      {"step": 3, "action": "Verify fan and airflow path."}
+    ],
+    "parts": [
+      {"sku": "FILTER-LIQ-REF", "quantity": 1},
+      {"sku": "COMP-REF-1PH", "quantity": 1}
+    ]
+  },
+  {
+    "Code": "FD-PDP-HI",
+    "ManualTermCondition": "High relative humidity / Pressure dew point too high",
+    "LikelyRootCauses": [
+      "Inlet air temp high",
+      "Ambient too hot",
+      "Low inlet pressure",
+      "Flow > rating",
+      "Low refrigerant",
+      "Condenser pressure high",
+      "Compressor off"
+    ],
+    "FixSteps": "Improve ventilation or relocate; add pre-cooler; raise inlet pressure; reduce flow; leak-check & recharge; clean condenser; check fan/switch; restart after correction",
+    "PartsCommonlyUsed": [
+      "Refrigerant (R134a/R404A/R410A per model)",
+      "Condenser fan",
+      "Fan pressure switch"
+    ]
+  },
+  {
+    "Code": "FD-FRZ",
+    "ManualTermCondition": "Freezing alarm; evap. pressure too low",
+    "LikelyRootCauses": [
+      "Very low load/ambient",
+      "Hot-gas bypass not regulating",
+      "Fan over-cooling"
+    ],
+    "FixSteps": "Verify hot-gas bypass setting; check fan control switch; correct airflow; reset once fixed",
+    "PartsCommonlyUsed": [
+      "Hot-gas bypass valve",
+      "Fan switch"
+    ]
+  },
+  {
+    "Code": "FD-COND-HI",
+    "ManualTermCondition": "Condenser pressure too high",
+    "LikelyRootCauses": [
+      "Fan/switch failure",
+      "Dirty condenser",
+      "Ambient too high"
+    ],
+    "FixSteps": "Replace/adjust fan switch; repair fan; clean fins; duct cooler air",
+    "PartsCommonlyUsed": [
+      "Fan motor",
+      "Fan switch"
+    ]
+  },
+  {
+    "Code": "FD-COND-LO",
+    "ManualTermCondition": "Condenser pressure too low",
+    "LikelyRootCauses": [
+      "Ambient too cold",
+      "Fan locked on",
+      "Very low load"
+    ],
+    "FixSteps": "Check fan control range; block bypass airflow in cold; verify HGBP",
+    "PartsCommonlyUsed": [
+      "Fan switch"
+    ]
+  },
+  {
+    "Code": "FD-COMP-STOP",
+    "ManualTermCondition": "Compressor stops/does not start",
+    "LikelyRootCauses": [
+      "Power interrupted",
+      "Motor thermal protection tripped"
+    ],
+    "FixSteps": "Check supply/fuses; allow cool-down; restart",
+    "PartsCommonlyUsed": [
+      "Capacitor/overload",
+      "Contactor"
+    ]
+  },
+  {
+    "Code": "FD-DRAIN-NOOP",
+    "ManualTermCondition": "Condensate trap inoperative",
+    "LikelyRootCauses": [
+      "Auto drain clogged"
+    ],
+    "FixSteps": "Open manual drain to flush; clean/replace electronic/no-loss drain",
+    "PartsCommonlyUsed": [
+      "Electronic drain kit"
+    ]
+  },
+  {
+    "Code": "FD-DRAIN-LEAK",
+    "ManualTermCondition": "Drain continuously discharges",
+    "LikelyRootCauses": [
+      "Drain valve stuck/fails closed"
+    ],
+    "FixSteps": "Service/replace drain",
+    "PartsCommonlyUsed": [
+      "Electronic drain"
+    ]
+  },
+  {
+    "Code": "FD-DP-SENSOR",
+    "ManualTermCondition": "Dew point sensor mis-positioned",
+    "LikelyRootCauses": [
+      "Probe not seated, not detected correctly"
+    ],
+    "FixSteps": "Reposition/secure probe; reset alarm",
+    "PartsCommonlyUsed": [
+      "PDP probe"
+    ]
+  }
+]
+

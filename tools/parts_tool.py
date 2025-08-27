@@ -1,12 +1,21 @@
 # tools/parts_tool.py
 from pymongo import MongoClient
 from typing import Dict, Any
+from dotenv import load_dotenv
+load_dotenv()
+
+import os 
+
+MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    raise RuntimeError("MONGO_URI not set in environment. Check your .env file.")
+
 
 class PartsTool:
     name = "check_part_inventory"
     description = "Check if a specific spare part is available in inventory. Input should include the part name."
 
-    def __init__(self, uri="mongodb://localhost:27017/", db="test_assistant_inventory", coll="parts"):
+    def __init__(self, uri=MONGO_URI, db="inventory_db", coll="parts"):
         self.client = MongoClient(uri)
         self.collection = self.client[db][coll]
 
